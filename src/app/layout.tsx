@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'GUIA DO MOCHILEIRO ESTUDANTIL',
+  title: 'Guia do Estudante AVA',
   description: 'Seu guia interativo do estudante com assistência IA e informações da CEUMA.',
 };
 

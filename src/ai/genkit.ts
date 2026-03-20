@@ -30,17 +30,18 @@ if (motorGenerativo === 'googleai') {
     console.log(`Motor Genkit configurado para usar Google AI.`);
     console.log(`Modelo Google AI: ${defaultModel}`);
   }
-} else if (motorGenerativo === 'grok') {
-  if (!process.env.GROK_API_KEY) { 
-    console.error("ERRO: GROK_API_KEY não definida no .env para o motor 'grok'.");
+} else if (motorGenerativo === 'groq') {
+  if (!process.env.GROQ_API_KEY) { 
+    console.error("ERRO: GROQ_API_KEY não definida no .env para o motor 'groq'.");
   } else if (!groqApiBaseUrl) {
-    console.error("ERRO: GROQ_API_BASE_URL não definida no .env para o motor 'grok'.");
+    console.error("ERRO: GROQ_API_BASE_URL não definida no .env para o motor 'groq'.");
   } else {
-    genkitPlugins.push(openAI({ // Use o plugin openAI importado corretamente
-      apiKey: process.env.GROK_API_KEY, 
+    genkitPlugins.push(openAI({ 
+      apiKey: process.env.GROQ_API_KEY, 
       baseURL: groqApiBaseUrl,
     }));
-    defaultModel = groqModelName || 'llama3-8b-8192'; // Modelo Groq padrão
+    // GroqCloud model IDs (ex: `llama-3.3-70b-versatile`) - use um ID válido do Groq.
+    defaultModel = groqModelName || 'llama-3.3-70b-versatile'; // Modelo Groq padrão
     console.log(`Motor Genkit configurado para usar Groq (via OpenAI compatible API).`);
     console.log(`Modelo Groq: ${defaultModel}`);
   }
