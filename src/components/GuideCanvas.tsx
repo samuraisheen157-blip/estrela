@@ -5,6 +5,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { quickLinksData } from '@/app/api/data/projectData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PlayCircle, FileText } from 'lucide-react';
 
 interface GuideCanvasProps {
   className?: string;
@@ -28,13 +29,38 @@ const GuideCanvas: React.FC<GuideCanvasProps> = ({ className }) => {
       <h1 id="guide-canvas-title" className="text-2xl font-bold mb-4 text-primary px-4 pt-4 md:px-0 md:pt-0">Guia do Estudante AVA</h1>
 
       <div className="flex-1 min-h-0">
-        <Tabs defaultValue="material" className="w-full flex flex-col h-full">
+        <Tabs defaultValue="video" className="w-full flex flex-col h-full">
         <div className="w-full flex justify-center">
-          <TabsList className="w-fit">
-            <TabsTrigger value="material">Material</TabsTrigger>
-            <TabsTrigger value="video">Vídeo</TabsTrigger>
+          <TabsList className="w-fit bg-muted/70 border border-border">
+            <TabsTrigger
+              value="video"
+              className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <PlayCircle size={16} />
+              Vídeo
+            </TabsTrigger>
+            <TabsTrigger
+              value="material"
+              className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <FileText size={16} />
+              Material
+            </TabsTrigger>
           </TabsList>
         </div>
+
+        <TabsContent value="video" className="mt-4 flex-1 min-h-0 overflow-hidden">
+          <div className="aspect-video w-full overflow-hidden rounded-md border bg-muted relative">
+            <iframe
+              className="absolute top-0 left-0 w-full h-full"
+              loading="lazy"
+              src={`https://player.vimeo.com/video/${vimeoVideoId}?dnt=1&autopause=0#t=0`}
+              allowFullScreen
+              allow="fullscreen; picture-in-picture"
+              title="Guia do Estudante AVA (Vídeo)"
+            />
+          </div>
+        </TabsContent>
 
         <TabsContent value="material" className="mt-4 flex-1 min-h-0 overflow-hidden">
           <div className="aspect-video w-full overflow-hidden rounded-md border bg-muted relative">
@@ -55,18 +81,6 @@ const GuideCanvas: React.FC<GuideCanvasProps> = ({ className }) => {
           </div>
         </TabsContent>
 
-        <TabsContent value="video" className="mt-4 flex-1 min-h-0 overflow-hidden">
-          <div className="aspect-video w-full overflow-hidden rounded-md border bg-muted relative">
-            <iframe
-              className="absolute top-0 left-0 w-full h-full"
-              loading="lazy"
-              src={`https://player.vimeo.com/video/${vimeoVideoId}?dnt=1&autopause=0#t=0`}
-              allowFullScreen
-              allow="fullscreen; picture-in-picture"
-              title="Guia do Estudante AVA (Vídeo)"
-            />
-          </div>
-        </TabsContent>
         </Tabs>
       </div>
     </div>
