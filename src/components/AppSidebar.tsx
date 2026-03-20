@@ -449,10 +449,10 @@ const AppSidebar: React.FC = () => {
             <div className="aspect-video w-full overflow-hidden rounded-lg shadow-lg bg-muted">
               {selectedVideo ? (
                 <iframe 
-                  src={`https://www.youtube.com/embed/${selectedVideo}?autoplay=1&modestbranding=1&rel=0`}
+                  src={`https://player.vimeo.com/video/${selectedVideo}?autoplay=1&dnt=1&autopause=0#t=${quickLinksData.find(link => link.id === activeQuickLinkId)?.startSeconds ?? 0}`}
                   className="w-full h-full" 
-                  title="Vídeo Tutorial" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  title="Vídeo Tutorial (Vimeo)"
+                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
                   allowFullScreen
                 ></iframe>
               ) : <p className="flex items-center justify-center h-full text-muted-foreground">Vídeo não disponível.</p>}
