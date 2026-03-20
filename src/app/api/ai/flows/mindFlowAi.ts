@@ -55,7 +55,6 @@ export async function searchEstrelaMind(input: MindFlowSearchInput): Promise<Min
 const chatPrompt = ai.definePrompt({
   name: 'estrelaMindChatPrompt',
   input: {schema: MindFlowChatInputSchema},
-  output: {schema: MindFlowChatOutputSchema},
   prompt: `Você é Estrela, uma assistente virtual AI amigável e especialista no Ambiente Virtual de Aprendizagem (AVA/Moodle) da Universidade CEUMA. Sua missão é ajudar os estudantes a navegar e utilizar o AVA/Moodle da CEUMA da forma mais eficiente possível.
 
 Responda exclusivamente a perguntas sobre:
@@ -80,8 +79,28 @@ const estrelaMindChatFlow = ai.defineFlow(
     outputSchema: MindFlowChatOutputSchema,
   },
   async (input) => {
-    const {output} = await chatPrompt(input);
-    return output!;
+    try {
+      const response = await chatPrompt(input);
+      const answerText =
+        (typeof response.text === 'string' ? response.text : '') ||
+        (typeof response.output === 'object' &&
+        response.output &&
+        'answer' in response.output &&
+        typeof (response.output as {answer?: string}).answer === 'string'
+          ? (response.output as {answer?: string}).answer ?? ''
+          : '');
+
+      if (answerText.trim()) {
+        return {answer: answerText.trim()};
+      }
+    } catch (error) {
+      console.error('Erro no estrelaMindChatFlow:', error);
+    }
+
+    return {
+      answer:
+        'Tive um problema temporário ao gerar a resposta agora. Tente novamente em alguns segundos com a mesma pergunta sobre o AVA da CEUMA.',
+    };
   }
 );
 
@@ -89,7 +108,6 @@ const estrelaMindChatFlow = ai.defineFlow(
 const searchPrompt = ai.definePrompt({
   name: 'estrelaMindSearchPrompt',
   input: {schema: MindFlowSearchInputSchema},
-  output: {schema: MindFlowSearchOutputSchema},
   prompt: `Você é Estrela, uma assistente de pesquisa AI para estudantes da Universidade CEUMA, com foco total no ambiente AVA (Moodle). Sua tarefa é processar a consulta de pesquisa fornecida e retornar um resumo conciso e relevante de informações que seriam encontradas nos manuais, FAQs, tutoriais e recursos do ambiente AVA (Moodle) da CEUMA.
 
 Concentre-se em fornecer informações acionáveis ou direcionamentos para onde o estudante pode encontrar mais detalhes DENTRO do AVA/Moodle da CEUMA. A pesquisa é exclusivamente sobre o AVA/Moodle da CEUMA.
@@ -112,8 +130,28 @@ const estrelaMindSearchFlow = ai.defineFlow(
     outputSchema: MindFlowSearchOutputSchema,
   },
   async (input) => {
-    const {output} = await searchPrompt(input);
-    return output!;
+    try {
+      const response = await searchPrompt(input);
+      const searchText =
+        (typeof response.text === 'string' ? response.text : '') ||
+        (typeof response.output === 'object' &&
+        response.output &&
+        'searchResults' in response.output &&
+        typeof (response.output as {searchResults?: string}).searchResults === 'string'
+          ? (response.output as {searchResults?: string}).searchResults ?? ''
+          : '');
+
+      if (searchText.trim()) {
+        return {searchResults: searchText.trim()};
+      }
+    } catch (error) {
+      console.error('Erro no estrelaMindSearchFlow:', error);
+    }
+
+    return {
+      searchResults:
+        'Não consegui concluir a pesquisa neste momento. Tente novamente em instantes com outra formulação da sua busca sobre o AVA.',
+    };
   }
 );
 

@@ -12,6 +12,48 @@ import {
   type MindFlowSearchOutput
 } from '@/app/api/ai/flows/mindFlowAi'; // Caminho atualizado
 
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
+
+// -----------------------------
+// Deprecated Eva compatibility
+// -----------------------------
+export async function askEva(question: string): Promise<{ answer: string }> {
+  // EvaAIChat está marcado como deprecated; reaproveitamos o mesmo fluxo da Estrela.
+  const response = await askEstrelaMindFlow({ question } as MindFlowChatInput);
+  return response;
+}
+
+// -----------------------------
+// Virtual tour script (deprecated)
+// -----------------------------
+const VirtualTourScriptInputSchema = z.object({
+  outline: z.string().describe('A ideia/outline do roteiro do tour.'),
+});
+
+const VirtualTourScriptOutputSchema = z.object({
+  script: z.string().describe('Roteiro final do tour em texto.'),
+});
+
+const generateVirtualTourScriptPrompt = ai.definePrompt({
+  name: 'virtualTourScriptPrompt',
+  input: { schema: VirtualTourScriptInputSchema },
+  output: { schema: VirtualTourScriptOutputSchema },
+  prompt: `Você é um roteirista de vídeos para um tour virtual na universidade.
+
+Gere um roteiro ENGRAÇADO, COESO e envolvente com base no outline abaixo.
+O roteiro deve ficar em texto corrido e com quebras lógicas naturais (parágrafos), pronto para o apresentador narrar.
+
+Outline do tour:
+{{{outline}}}
+`,
+});
+
+export async function generateVirtualTourScript(outline: string): Promise<{ script: string }> {
+  const { output } = await generateVirtualTourScriptPrompt({ outline });
+  return output!;
+}
+
 export async function askEstrelaMind(input: MindFlowChatInput): Promise<MindFlowChatOutput> {
   try {
     console.log("Chamando askEstrelaMindFlow com input:", JSON.stringify(input, null, 2));

@@ -2,17 +2,20 @@
 import { config } from 'dotenv';
 config();
 
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
-import {openAI} from 'genkitx-openai'; // Import OpenAI plugin
+import { genkit, modelRef } from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
+import { openAICompatible } from '@genkit-ai/compat-oai';
 
 // Ler variáveis de ambiente
 const motorGenerativo = process.env.MOTOR_GENARATIVO?.trim().toLowerCase();
 const googleModelName = process.env.GOOGLE_MODEL_NAME?.trim();
 const groqModelName = process.env.GROQ_MODEL_NAME?.trim();
 const groqApiBaseUrl = process.env.GROQ_API_BASE_URL?.trim();
+const deprecatedGroqModelMap: Record<string, string> = {
+  'llama3-8b-8192': 'llama-3.1-8b-instant',
+};
 
-let defaultModel: string | undefined;
+let defaultModel: any | undefined;
 const genkitPlugins = [];
 
 console.log(`--- Genkit Configuration ---`);
@@ -36,14 +39,30 @@ if (motorGenerativo === 'googleai') {
   } else if (!groqApiBaseUrl) {
     console.error("ERRO: GROQ_API_BASE_URL não definida no .env para o motor 'groq'.");
   } else {
-    genkitPlugins.push(openAI({ 
-      apiKey: process.env.GROQ_API_KEY, 
-      baseURL: groqApiBaseUrl,
-    }));
-    // GroqCloud model IDs (ex: `llama-3.3-70b-versatile`) - use um ID válido do Groq.
-    defaultModel = groqModelName || 'llama-3.3-70b-versatile'; // Modelo Groq padrão
-    console.log(`Motor Genkit configurado para usar Groq (via OpenAI compatible API).`);
-    console.log(`Modelo Groq: ${defaultModel}`);
+    genkitPlugins.push(
+      openAICompatible({
+        name: 'groq',
+        apiKey: process.env.GROQ_API_KEY,
+        baseURL: groqApiBaseUrl,
+      }),
+    );
+
+    const resolvedGroqModel = deprecatedGroqModelMap[groqModelName ?? ''] ?? groqModelName ?? 'llama-3.1-8b-instant';
+    if (groqModelName && deprecatedGroqModelMap[groqModelName]) {
+      console.warn(
+        `Aviso: modelo GROQ_MODEL_NAME "${groqModelName}" foi descontinuado. ` +
+        `Usando "${resolvedGroqModel}" automaticamente.`
+      );
+    }
+
+    // O modelRef precisa usar o namespace do plugin (ex: `groq/<modelId>`).
+    // Isso evita o erro de "Model not found" do Genkit.
+    defaultModel = modelRef({
+      name: `groq/${resolvedGroqModel}`,
+    });
+
+    console.log(`Motor Genkit configurado para usar Groq (openAICompatible).`);
+    console.log(`Modelo Groq: ${resolvedGroqModel}`);
   }
 } else {
   console.log(
